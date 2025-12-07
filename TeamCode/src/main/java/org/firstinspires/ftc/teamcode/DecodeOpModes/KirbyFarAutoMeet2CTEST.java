@@ -1,13 +1,21 @@
-package org.firstinspires.ftc.teamcode.DecodeClasses;
+package org.firstinspires.ftc.teamcode.DecodeOpModes;
 
 import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.MecanumDrive;
+import org.firstinspires.ftc.teamcode.SubSystems.CameraSystem;
+import org.firstinspires.ftc.teamcode.SubSystems.ColorSensorCode;
+import org.firstinspires.ftc.teamcode.SubSystems.Feeder;
+import org.firstinspires.ftc.teamcode.SubSystems.Firecracker;
+import org.firstinspires.ftc.teamcode.SubSystems.Hammer;
+import org.firstinspires.ftc.teamcode.SubSystems.Inhaler;
+import org.firstinspires.ftc.teamcode.SubSystems.LED;
+import org.firstinspires.ftc.teamcode.SubSystems.MotorClass;
 
 @Autonomous
-public final class KirbyFarAutoMeet1A extends LinearOpMode {
+public final class KirbyFarAutoMeet2CTEST extends LinearOpMode {
 
     private Pose2d beginPose;
     private MecanumDrive drive;
@@ -51,8 +59,8 @@ public final class KirbyFarAutoMeet1A extends LinearOpMode {
         camera             = new CameraSystem(hardwareMap);
         rightFirecracker    =  new Firecracker(hardwareMap, "right_launcher");
         leftFirecracker     =  new Firecracker(hardwareMap, "left_launcher");
-        inhaler1                 = new Inhaler(hardwareMap, "intake");
-        inhaler2                 = new Inhaler(hardwareMap, "transfer");
+        inhaler1                 = new Inhaler(hardwareMap, "intake1");
+        inhaler2                 = new Inhaler(hardwareMap, "intake2");
         leftFeeder               = new Feeder(hardwareMap, "left_feeder");
         rightFeeder              = new Feeder(hardwareMap, "right_feeder");
         leftLight                   = new LED(hardwareMap, "left_light");
@@ -81,25 +89,45 @@ public final class KirbyFarAutoMeet1A extends LinearOpMode {
         waitForStart();
 
         if(opModeIsActive()) {
+            int patternNumber = 0;
+            while(opModeIsActive() && patternNumber == 0){
+                patternNumber = camera.getPattern();
+
+            }
+            if(patternNumber == 21){  //Green Purple Purple
+                //repeats each steps twice in case it failed to launch on the first attempt
+                singleIntakeLaunchCycle(leftFeeder, leftFirecracker);
+                singleIntakeLaunchCycle(leftFeeder, leftFirecracker);
+                singleIntakeLaunchCycle(rightFeeder, rightFirecracker);
+                singleIntakeLaunchCycle(rightFeeder, rightFirecracker);
+                doubleIntakeLaunchCycle(rightFeeder, rightFirecracker);
+                doubleIntakeLaunchCycle(rightFeeder, rightFirecracker);
 
 
+            }else if(patternNumber == 22){ //Purple Green Purple
+                singleIntakeLaunchCycle(rightFeeder, rightFirecracker);
+                singleIntakeLaunchCycle(rightFeeder, rightFirecracker);
+                singleIntakeLaunchCycle(leftFeeder, leftFirecracker);
+                singleIntakeLaunchCycle(leftFeeder, leftFirecracker);
+                doubleIntakeLaunchCycle(rightFeeder, rightFirecracker);
+                doubleIntakeLaunchCycle(rightFeeder, rightFirecracker);
+            }else{                  //Purple Purple Green
+                singleIntakeLaunchCycle(leftFeeder, leftFirecracker);
+                singleIntakeLaunchCycle(leftFeeder, leftFirecracker);
+                doubleIntakeLaunchCycle(rightFeeder, rightFirecracker);
+                doubleIntakeLaunchCycle(rightFeeder, rightFirecracker);
+                singleIntakeLaunchCycle(rightFeeder, rightFirecracker);
+                singleIntakeLaunchCycle(rightFeeder, rightFirecracker);
+            }
 
+
+        //Utilizing the camera to determine the game's Pattern through apriltag
 
 
 
             //first fire cycle
 
-            launchCycle(leftFeeder, leftFirecracker);
 
-            //second fire cycle
-            launchCycle(rightFeeder, rightFirecracker);
-
-            //third fire cycle
-            launchCycle(leftFeeder, leftFirecracker);
-
-            launchCycle(rightFeeder, rightFirecracker);
-
-            launchCycle(leftFeeder, leftFirecracker);
 
             leftFirecracker.ceaseFire();
             rightFirecracker.ceaseFire();
@@ -110,7 +138,26 @@ public final class KirbyFarAutoMeet1A extends LinearOpMode {
         }
     }
 
-    void launchCycle(Feeder feed, Firecracker launcher){
+    // A method which only activates the second intake and delievers
+    void singleIntakeLaunchCycle(Feeder feed, Firecracker launcher){
+        leftFirecracker.crackBigBoyFire();
+        rightFirecracker.crackBigBoyFire();
+        launcherTarget = LAUNCHER_FAR_TARGET_VELOCITY;
+        while(opModeIsActive() && launcher.getCurrentVelocity()<launcherTarget){
+            telemetry.addData("Current velocity: ", launcher.getCurrentVelocity());
+            telemetry.update();
+        }
+
+        inhaler2.inhale_on();
+        feed.feed_on();
+        sleep(1000);
+        feed.feed_off();
+
+        inhaler2.inhale_off();
+    }
+
+    //A method that runs both intake systems and deliever
+    void doubleIntakeLaunchCycle(Feeder feed, Firecracker launcher){
         leftFirecracker.crackBigBoyFire();
         rightFirecracker.crackBigBoyFire();
         launcherTarget = LAUNCHER_FAR_TARGET_VELOCITY;

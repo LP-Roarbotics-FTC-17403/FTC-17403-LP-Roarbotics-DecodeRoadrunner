@@ -1,21 +1,28 @@
-package org.firstinspires.ftc.teamcode.DecodeClasses;
+package org.firstinspires.ftc.teamcode.DecodeOpModes;
 
 import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.MecanumDrive;
+import org.firstinspires.ftc.teamcode.SubSystems.CameraSystem;
+import org.firstinspires.ftc.teamcode.SubSystems.ColorSensorCode;
+import org.firstinspires.ftc.teamcode.SubSystems.Feeder;
+import org.firstinspires.ftc.teamcode.SubSystems.Firecracker;
+import org.firstinspires.ftc.teamcode.SubSystems.Hammer;
+import org.firstinspires.ftc.teamcode.SubSystems.Inhaler;
+import org.firstinspires.ftc.teamcode.SubSystems.LED;
+import org.firstinspires.ftc.teamcode.SubSystems.MotorClass;
 
 @Autonomous
-public final class KirbyFarAutoMeet2CTEST extends LinearOpMode {
+public final class KirbyRedAutoMeet1AENCODER extends LinearOpMode {
 
     private Pose2d beginPose;
     private MecanumDrive drive;
     private CameraSystem camera;
     private Firecracker rightFirecracker;
     private Firecracker leftFirecracker;
-    private Inhaler inhaler1;
-    private Inhaler inhaler2;
+    private Inhaler inhaler;
     private Feeder leftFeeder;
     private Feeder rightFeeder;
     private LED leftLight;
@@ -51,8 +58,7 @@ public final class KirbyFarAutoMeet2CTEST extends LinearOpMode {
         camera             = new CameraSystem(hardwareMap);
         rightFirecracker    =  new Firecracker(hardwareMap, "right_launcher");
         leftFirecracker     =  new Firecracker(hardwareMap, "left_launcher");
-        inhaler1                 = new Inhaler(hardwareMap, "intake1");
-        inhaler2                 = new Inhaler(hardwareMap, "intake2");
+        inhaler                 = new Inhaler(hardwareMap, "intake");
         leftFeeder               = new Feeder(hardwareMap, "left_feeder");
         rightFeeder              = new Feeder(hardwareMap, "right_feeder");
         leftLight                   = new LED(hardwareMap, "left_light");
@@ -72,8 +78,7 @@ public final class KirbyFarAutoMeet2CTEST extends LinearOpMode {
         rightFeeder.initialize(notReverse);
         leftFirecracker.initialize(notReverse);
         rightFirecracker.initialize(reverse);
-        inhaler1.initialize(reverse);
-        inhaler2.initialize(notReverse);
+        inhaler.initialize(reverse);
         vroom.initialize(true);
         //camera.cameraOn();
 
@@ -81,89 +86,44 @@ public final class KirbyFarAutoMeet2CTEST extends LinearOpMode {
         waitForStart();
 
         if(opModeIsActive()) {
-            int patternNumber = 0;
-            while(opModeIsActive() && patternNumber == 0){
-                patternNumber = camera.getPattern();
-
-            }
-            if(patternNumber == 21){  //Green Purple Purple
-                //repeats each steps twice in case it failed to launch on the first attempt
-                singleIntakeLaunchCycle(leftFeeder, leftFirecracker);
-                singleIntakeLaunchCycle(leftFeeder, leftFirecracker);
-                singleIntakeLaunchCycle(rightFeeder, rightFirecracker);
-                singleIntakeLaunchCycle(rightFeeder, rightFirecracker);
-                doubleIntakeLaunchCycle(rightFeeder, rightFirecracker);
-                doubleIntakeLaunchCycle(rightFeeder, rightFirecracker);
 
 
-            }else if(patternNumber == 22){ //Purple Green Purple
-                singleIntakeLaunchCycle(rightFeeder, rightFirecracker);
-                singleIntakeLaunchCycle(rightFeeder, rightFirecracker);
-                singleIntakeLaunchCycle(leftFeeder, leftFirecracker);
-                singleIntakeLaunchCycle(leftFeeder, leftFirecracker);
-                doubleIntakeLaunchCycle(rightFeeder, rightFirecracker);
-                doubleIntakeLaunchCycle(rightFeeder, rightFirecracker);
-            }else{                  //Purple Purple Green
-                singleIntakeLaunchCycle(leftFeeder, leftFirecracker);
-                singleIntakeLaunchCycle(leftFeeder, leftFirecracker);
-                doubleIntakeLaunchCycle(rightFeeder, rightFirecracker);
-                doubleIntakeLaunchCycle(rightFeeder, rightFirecracker);
-                singleIntakeLaunchCycle(rightFeeder, rightFirecracker);
-                singleIntakeLaunchCycle(rightFeeder, rightFirecracker);
-            }
-
-
-        //Utilizing the camera to determine the game's Pattern through apriltag
+            vroom.moveVertical(-20, 0.5);
 
 
 
             //first fire cycle
 
+            launchCycle(leftFeeder, leftFirecracker);
 
+            //second fire cycle
+            launchCycle(rightFeeder, rightFirecracker);
+
+            //third fire cycle
+            launchCycle(leftFeeder, leftFirecracker);
 
             leftFirecracker.ceaseFire();
             rightFirecracker.ceaseFire();
 
-            vroom.motorTest(0.4);
-            sleep(600);
+            vroom.powerStrafe(true, 0.5);
+            sleep(750);
             vroom.stopMotor();
         }
     }
 
-    // A method which only activates the second intake and delievers
-    void singleIntakeLaunchCycle(Feeder feed, Firecracker launcher){
-        leftFirecracker.crackBigBoyFire();
-        rightFirecracker.crackBigBoyFire();
-        launcherTarget = LAUNCHER_FAR_TARGET_VELOCITY;
+    void launchCycle(Feeder feed, Firecracker launcher){
+        leftFirecracker.crackDaFire();
+        rightFirecracker.crackDaFire();
+
         while(opModeIsActive() && launcher.getCurrentVelocity()<launcherTarget){
             telemetry.addData("Current velocity: ", launcher.getCurrentVelocity());
             telemetry.update();
         }
-
-        inhaler2.inhale_on();
+        inhaler.inhale_on();
         feed.feed_on();
         sleep(1000);
         feed.feed_off();
-
-        inhaler2.inhale_off();
-    }
-
-    //A method that runs both intake systems and deliever
-    void doubleIntakeLaunchCycle(Feeder feed, Firecracker launcher){
-        leftFirecracker.crackBigBoyFire();
-        rightFirecracker.crackBigBoyFire();
-        launcherTarget = LAUNCHER_FAR_TARGET_VELOCITY;
-        while(opModeIsActive() && launcher.getCurrentVelocity()<launcherTarget){
-            telemetry.addData("Current velocity: ", launcher.getCurrentVelocity());
-            telemetry.update();
-        }
-        inhaler1.inhale_on();
-        inhaler2.inhale_on();
-        feed.feed_on();
-        sleep(1000);
-        feed.feed_off();
-        inhaler1.inhale_off();
-        inhaler2.inhale_off();
+        inhaler.inhale_off();
     }
 }
 

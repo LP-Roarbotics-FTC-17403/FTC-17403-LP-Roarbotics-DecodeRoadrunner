@@ -1,10 +1,18 @@
-package org.firstinspires.ftc.teamcode.DecodeClasses;
+package org.firstinspires.ftc.teamcode.DecodeOpModes;
 
 import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.MecanumDrive;
+import org.firstinspires.ftc.teamcode.SubSystems.CameraSystem;
+import org.firstinspires.ftc.teamcode.SubSystems.ColorSensorCode;
+import org.firstinspires.ftc.teamcode.SubSystems.Feeder;
+import org.firstinspires.ftc.teamcode.SubSystems.Firecracker;
+import org.firstinspires.ftc.teamcode.SubSystems.Hammer;
+import org.firstinspires.ftc.teamcode.SubSystems.Inhaler;
+import org.firstinspires.ftc.teamcode.SubSystems.LED;
+import org.firstinspires.ftc.teamcode.SubSystems.MotorClass;
 
 @Autonomous
 public final class KirbyRedAutoMeet2CTEST extends LinearOpMode {

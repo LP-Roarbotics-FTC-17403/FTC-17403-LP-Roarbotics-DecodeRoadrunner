@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.DecodeClasses;
+package org.firstinspires.ftc.teamcode.SubSystems;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;

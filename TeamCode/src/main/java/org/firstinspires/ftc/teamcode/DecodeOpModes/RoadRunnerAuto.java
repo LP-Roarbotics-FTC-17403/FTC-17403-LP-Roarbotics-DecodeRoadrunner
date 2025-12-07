@@ -1,31 +1,27 @@
-package org.firstinspires.ftc.teamcode.DecodeClasses;
+package org.firstinspires.ftc.teamcode.DecodeOpModes;
 
 import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
-import com.acmerobotics.roadrunner.AngularVelConstraint;
-import com.acmerobotics.roadrunner.MinVelConstraint;
 import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.ProfileAccelConstraint;
 import com.acmerobotics.roadrunner.SequentialAction;
-import com.acmerobotics.roadrunner.Trajectory;
-import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
 import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.acmerobotics.roadrunner.ParallelAction;
 import org.firstinspires.ftc.teamcode.MecanumDrive;
-import org.firstinspires.ftc.teamcode.TankDrive;
+import org.firstinspires.ftc.teamcode.SubSystems.CameraSystem;
+import org.firstinspires.ftc.teamcode.SubSystems.ColorSensorCode;
+import org.firstinspires.ftc.teamcode.SubSystems.Feeder;
+import org.firstinspires.ftc.teamcode.SubSystems.Firecracker;
+import org.firstinspires.ftc.teamcode.SubSystems.Hammer;
+import org.firstinspires.ftc.teamcode.SubSystems.Inhaler;
+import org.firstinspires.ftc.teamcode.SubSystems.LED;
+import org.firstinspires.ftc.teamcode.SubSystems.MotorClass;
+
 import com.acmerobotics.roadrunner.Action;
-
-
-import org.firstinspires.ftc.teamcode.MecanumDrive;
-
-import java.util.Arrays;
 
 @Autonomous
 public final class RoadRunnerAuto extends LinearOpMode {
@@ -106,51 +102,78 @@ public final class RoadRunnerAuto extends LinearOpMode {
 
         Action t2 = drive.actionBuilder(launchPose)
                 .splineToSplineHeading(new Pose2d(-12,-25, Math.toRadians(270)), Math.toRadians(270))
-                .afterDisp(0, ()->{
-                    inhaler1.inhale_on();
-                    inhaler2.inhale_on();
-                })
-                .afterDisp(3, ()->{
-                    hammer.setLeft();
-                })
-                .afterDisp(6, ()->{
-                    inhaler1.inhale_off();
-                    inhaler2.inhale_off();
-                })
+                .afterDisp(0, ()->
+                        Actions.runBlocking(
+                                new ParallelAction(
+                                        inhaler1.intaking(),
+                                        inhaler2.intaking()
+                                )
+                        ))
+                .afterDisp(3, ()->
+                        Actions.runBlocking(
+                                new ParallelAction(
+                                        hammer.moveLeft()
+                                )
+                        ))
+                .afterDisp(6, ()->
+                        Actions.runBlocking(
+                                new ParallelAction(
+                                        inhaler1.notIntaking(),
+                                        inhaler2.notIntaking()
+                                )
+                        ))
                 .lineToYLinearHeading(-45, Math.toRadians(270), new TranslationalVelConstraint(10.0))
                 .splineToSplineHeading(new Pose2d(-40,-35, Math.toRadians(233.5)), Math.toRadians(233.5))
                 .build();
 
         Action t3 = drive.actionBuilder(launchPose)
                 .splineToSplineHeading(new Pose2d(12,-25, Math.toRadians(270)), Math.toRadians(270))
-                .afterDisp(0, ()->{
-                    inhaler1.inhale_on();
-                    inhaler2.inhale_on();
-                })
-                .afterDisp(3, ()->{
-                    hammer.setLeft();
-                })
-                .afterDisp(6, ()->{
-                    inhaler1.inhale_off();
-                    inhaler2.inhale_off();
-                })
+                .afterDisp(0, ()->
+                        Actions.runBlocking(
+                                new ParallelAction(
+                                        inhaler1.intaking(),
+                                        inhaler2.intaking()
+                                )
+                        ))
+                .afterDisp(3, ()->
+                        Actions.runBlocking(
+                                new ParallelAction(
+                                        hammer.moveLeft()
+                                )
+                        ))
+                .afterDisp(6, ()->
+                        Actions.runBlocking(
+                                new ParallelAction(
+                                        inhaler1.notIntaking(),
+                                        inhaler2.notIntaking()
+                                )
+                        ))
                 .lineToYLinearHeading(-45, Math.toRadians(270), new TranslationalVelConstraint(10.0))
                 .splineToSplineHeading(new Pose2d(-40,-35, Math.toRadians(233.5)), Math.toRadians(233.5))
                 .build();
 
         Action t4 = drive.actionBuilder(launchPose)
                 .splineToSplineHeading(new Pose2d(36,-25, Math.toRadians(270)), Math.toRadians(270))
-                .afterDisp(0, ()->{
-                    inhaler1.inhale_on();
-                    inhaler2.inhale_on();
-                })
-                .afterDisp(3, ()->{
-                    hammer.setLeft();
-                })
-                .afterDisp(6, ()->{
-                    inhaler1.inhale_off();
-                    inhaler2.inhale_off();
-                })
+                .afterDisp(0, ()->
+                        Actions.runBlocking(
+                                new ParallelAction(
+                                        inhaler1.intaking(),
+                                        inhaler2.intaking()
+                                )
+                        ))
+                .afterDisp(3, ()->
+                        Actions.runBlocking(
+                                new ParallelAction(
+                                        hammer.moveLeft()
+                                )
+                        ))
+                .afterDisp(6, ()->
+                        Actions.runBlocking(
+                                new ParallelAction(
+                                        inhaler1.notIntaking(),
+                                        inhaler2.notIntaking()
+                                )
+                        ))
                 .lineToYLinearHeading(-45, Math.toRadians(270), new TranslationalVelConstraint(10.0))
                 .splineToSplineHeading(new Pose2d(-40,-35, Math.toRadians(233.5)), Math.toRadians(233.5))
                 .build();
@@ -158,7 +181,6 @@ public final class RoadRunnerAuto extends LinearOpMode {
 
         waitForStart();
 
-        if(opModeIsActive()) {
             Actions.runBlocking(
                     new SequentialAction(
                             t1,
@@ -199,7 +221,7 @@ public final class RoadRunnerAuto extends LinearOpMode {
             );
 
 
-        }
+
     }
 
     void spitfire(){

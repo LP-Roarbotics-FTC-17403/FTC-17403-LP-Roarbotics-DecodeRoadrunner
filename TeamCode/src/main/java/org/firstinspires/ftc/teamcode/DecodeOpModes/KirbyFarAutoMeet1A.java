@@ -1,13 +1,21 @@
-package org.firstinspires.ftc.teamcode.DecodeClasses;
+package org.firstinspires.ftc.teamcode.DecodeOpModes;
 
 import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.MecanumDrive;
+import org.firstinspires.ftc.teamcode.SubSystems.CameraSystem;
+import org.firstinspires.ftc.teamcode.SubSystems.ColorSensorCode;
+import org.firstinspires.ftc.teamcode.SubSystems.Feeder;
+import org.firstinspires.ftc.teamcode.SubSystems.Firecracker;
+import org.firstinspires.ftc.teamcode.SubSystems.Hammer;
+import org.firstinspires.ftc.teamcode.SubSystems.Inhaler;
+import org.firstinspires.ftc.teamcode.SubSystems.LED;
+import org.firstinspires.ftc.teamcode.SubSystems.MotorClass;
 
 @Autonomous
-public final class KirbyBlueAutoMeet2CTEST extends LinearOpMode {
+public final class KirbyFarAutoMeet1A extends LinearOpMode {
 
     private Pose2d beginPose;
     private MecanumDrive drive;
@@ -15,7 +23,6 @@ public final class KirbyBlueAutoMeet2CTEST extends LinearOpMode {
     private Firecracker rightFirecracker;
     private Firecracker leftFirecracker;
     private Inhaler inhaler1;
-
     private Inhaler inhaler2;
     private Feeder leftFeeder;
     private Feeder rightFeeder;
@@ -38,7 +45,7 @@ public final class KirbyBlueAutoMeet2CTEST extends LinearOpMode {
     final double LAUNCHER_FAR_TARGET_VELOCITY = 1350; //Target velocity for far goal
     final double LAUNCHER_FAR_MIN_VELOCITY = 1325; //minimum required to start a shot for far goal.
 
-    double launcherTarget = 1130; //These variables allow
+    double launcherTarget = LAUNCHER_CLOSE_TARGET_VELOCITY; //These variables allow
     double launcherMin = LAUNCHER_CLOSE_MIN_VELOCITY;
 
     final double LEFT_POSITION = 0.2962; //the left and right position for the diverter servo
@@ -75,7 +82,7 @@ public final class KirbyBlueAutoMeet2CTEST extends LinearOpMode {
         rightFirecracker.initialize(reverse);
         inhaler1.initialize(reverse);
         inhaler2.initialize(notReverse);
-        vroom.initialize(reverse);
+        vroom.initialize(true);
         //camera.cameraOn();
 
 
@@ -84,11 +91,8 @@ public final class KirbyBlueAutoMeet2CTEST extends LinearOpMode {
         if(opModeIsActive()) {
 
 
-            vroom.motorTest(-0.4);
-            sleep(1800);
-            vroom.stopMotor();
-            leftFirecracker.setTargetVelocity(1150);
-            rightFirecracker.setTargetVelocity(1150);
+
+
 
 
             //first fire cycle
@@ -108,16 +112,16 @@ public final class KirbyBlueAutoMeet2CTEST extends LinearOpMode {
             leftFirecracker.ceaseFire();
             rightFirecracker.ceaseFire();
 
-            vroom.powerStrafe(false, 0.5);
-            sleep(750);
+            vroom.motorTest(0.4);
+            sleep(600);
             vroom.stopMotor();
         }
     }
 
     void launchCycle(Feeder feed, Firecracker launcher){
-        leftFirecracker.crackDaFire();
-        rightFirecracker.crackDaFire();
-
+        leftFirecracker.crackBigBoyFire();
+        rightFirecracker.crackBigBoyFire();
+        launcherTarget = LAUNCHER_FAR_TARGET_VELOCITY;
         while(opModeIsActive() && launcher.getCurrentVelocity()<launcherTarget){
             telemetry.addData("Current velocity: ", launcher.getCurrentVelocity());
             telemetry.update();

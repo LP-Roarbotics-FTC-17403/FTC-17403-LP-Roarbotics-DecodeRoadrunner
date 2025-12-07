@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.DecodeClasses;
+package org.firstinspires.ftc.teamcode.SubSystems;
 import org.opencv.calib3d.Calib3d;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
@@ -93,7 +93,7 @@ class AprilTagDetectionPipeline extends OpenCvPipeline {
 
         // For fun, use OpenCV to draw 6DOF markers on the image.
         for (AprilTagDetection detection : detections) {
-            org.firstinspires.ftc.teamcode.DecodeClasses.AprilTagDetectionPipeline.Pose pose = aprilTagPoseToOpenCvPose(detection.pose);
+            AprilTagDetectionPipeline.Pose pose = aprilTagPoseToOpenCvPose(detection.pose);
             //Pose pose = poseFromTrapezoid(detection.corners, cameraMatrix, tagsizeX, tagsizeY);
             drawAxisMarker(input, tagsizeY / 2.0, 6, pose.rvec, pose.tvec, cameraMatrix);
             draw3dCubeMarker(input, tagsizeX, tagsizeX, tagsizeY, 5, pose.rvec, pose.tvec, cameraMatrix);
@@ -217,8 +217,8 @@ class AprilTagDetectionPipeline extends OpenCvPipeline {
         Imgproc.line(buf, projectedPoints[4], projectedPoints[7], green, thickness);
     }
 
-    org.firstinspires.ftc.teamcode.DecodeClasses.AprilTagDetectionPipeline.Pose aprilTagPoseToOpenCvPose(AprilTagPose aprilTagPose) {
-        org.firstinspires.ftc.teamcode.DecodeClasses.AprilTagDetectionPipeline.Pose pose = new org.firstinspires.ftc.teamcode.DecodeClasses.AprilTagDetectionPipeline.Pose();
+    AprilTagDetectionPipeline.Pose aprilTagPoseToOpenCvPose(AprilTagPose aprilTagPose) {
+        AprilTagDetectionPipeline.Pose pose = new AprilTagDetectionPipeline.Pose();
         pose.tvec.put(0, 0, aprilTagPose.x);
         pose.tvec.put(1, 0, aprilTagPose.y);
         pose.tvec.put(2, 0, aprilTagPose.z);
@@ -246,7 +246,7 @@ class AprilTagDetectionPipeline extends OpenCvPipeline {
      * @param tagsizeY     the original height of the tag
      * @return the 6DOF pose of the camera relative to the tag
      */
-    org.firstinspires.ftc.teamcode.DecodeClasses.AprilTagDetectionPipeline.Pose poseFromTrapezoid(Point[] points, Mat cameraMatrix, double tagsizeX, double tagsizeY) {
+    AprilTagDetectionPipeline.Pose poseFromTrapezoid(Point[] points, Mat cameraMatrix, double tagsizeX, double tagsizeY) {
         // The actual 2d points of the tag detected in the image
         MatOfPoint2f points2d = new MatOfPoint2f(points);
 
@@ -259,7 +259,7 @@ class AprilTagDetectionPipeline extends OpenCvPipeline {
         MatOfPoint3f points3d = new MatOfPoint3f(arrayPoints3d);
 
         // Using this information, actually solve for pose
-        org.firstinspires.ftc.teamcode.DecodeClasses.AprilTagDetectionPipeline.Pose pose = new org.firstinspires.ftc.teamcode.DecodeClasses.AprilTagDetectionPipeline.Pose();
+        AprilTagDetectionPipeline.Pose pose = new AprilTagDetectionPipeline.Pose();
         Calib3d.solvePnP(points3d, points2d, cameraMatrix, new MatOfDouble(), pose.rvec, pose.tvec, false);
 
         return pose;
