@@ -27,6 +27,7 @@ public final class MSI_FarSimpleScoring extends LinearOpMode {
     private Feeder leftFeeder;
     private Feeder rightFeeder;
     private LED leftLight;
+
     private LED middleLight;
     private LED rightLight;
     private ColorSensorCode leftColor;
