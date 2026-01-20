@@ -1,26 +1,3 @@
-/*   MIT License
- *   Copyright (c) [2025] [Base 10 Assets, LLC]
- *
- *   Permission is hereby granted, free of charge, to any person obtaining a copy
- *   of this software and associated documentation files (the "Software"), to deal
- *   in the Software without restriction, including without limitation the rights
- *   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- *   copies of the Software, and to permit persons to whom the Software is
- *   furnished to do so, subject to the following conditions:
-
- *   The above copyright notice and this permission notice shall be included in all
- *   copies or substantial portions of the Software.
-
- *   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- *   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- *   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- *   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- *   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- *   SOFTWARE.
- */
-
-
 package org.firstinspires.ftc.teamcode.DecodeOpModes;
 
 import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
@@ -31,7 +8,6 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -44,9 +20,9 @@ import org.firstinspires.ftc.teamcode.SubSystems.LED;
  * 2025-2026 FIRST® Tech Challenge season DECODE™!
  */
 
-@TeleOp(name = "BlueTeleOp", group = "TestCode")
+@TeleOp(name = "TeleTeleOppy", group = "TeleOp")
 //@Disabled
-public class TeleTeleOppy extends OpMode {
+public class BlueTeleTeleOppy extends OpMode {
     final double FEED_TIME_SECONDS = 2.80; //The feeder servos run this long when a shot is requested.
     final double STOP_SPEED = 0.0; //We send this power to the servos when we want them to stop.
     final double FULL_SPEED = 1.0;
@@ -71,11 +47,14 @@ public class TeleTeleOppy extends OpMode {
     private DcMotorEx leftLauncher = null;
     private DcMotorEx rightLauncher = null;
     private DcMotor intake = null;
+    private DcMotor transfer = null;
     private CRServo leftFeeder = null;
     private CRServo rightFeeder = null;
     private Servo diverter = null;
 
-
+    private LED leftLight;
+    private LED rightLight;
+    private CameraSystem camera;
 
     ElapsedTime leftFeederTimer = new ElapsedTime();
     ElapsedTime rightFeederTimer = new ElapsedTime();
@@ -101,6 +80,11 @@ public class TeleTeleOppy extends OpMode {
         OFF;
     }
 
+    private enum TransferState {
+        ON,
+        OFF;
+    }
+
     private enum LeftFeederState {
         ON,
         OFF;
@@ -112,6 +96,7 @@ public class TeleTeleOppy extends OpMode {
     }
 
     private IntakeState intakeState = IntakeState.OFF;
+    private TransferState transferState = TransferState.OFF;
     private LeftFeederState leftFeederState = LeftFeederState.OFF;
     private RightFeederState rightFeederState = RightFeederState.OFF;
 
@@ -143,10 +128,13 @@ public class TeleTeleOppy extends OpMode {
         leftLauncher = hardwareMap.get(DcMotorEx.class, "left_launcher");
         rightLauncher = hardwareMap.get(DcMotorEx.class, "right_launcher");
         intake = hardwareMap.get(DcMotor.class, "intake");
+        transfer = hardwareMap.get(DcMotor.class, "transfer");
         leftFeeder = hardwareMap.get(CRServo.class, "left_feeder");
         rightFeeder = hardwareMap.get(CRServo.class, "right_feeder");
         diverter = hardwareMap.get(Servo.class, "diverter");
-
+        leftLight = new LED(hardwareMap, "left_light");
+        rightLight = new LED(hardwareMap, "right_light");
+        camera = new CameraSystem(hardwareMap);
 
         /*
          * To drive forward, most robots need the motor on one side to be reversed,
@@ -196,6 +184,7 @@ public class TeleTeleOppy extends OpMode {
          * Tell the driver that initialization is complete.
          */
         telemetry.addData("Status", "Initialized");
+        camera.cameraOn();
     }
 
     /*
@@ -217,7 +206,7 @@ public class TeleTeleOppy extends OpMode {
      */
     @Override
     public void loop() {
-
+        lightings(20);
         mecanumDrive(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
 
         /*
@@ -249,15 +238,10 @@ public class TeleTeleOppy extends OpMode {
             switch (leftFeederState) {
                 case ON:
                     leftFeeder.setDirection(CRServo.Direction.FORWARD);
-                    leftFeederState = LeftFeederState.OFF;
                     leftFeeder.setPower(FULL_SPEED);
-                    leftFeederTimer.reset();
                 case OFF:
-                    if (leftFeederTimer.seconds() > FEED_TIME_SECONDS) {
-                        leftFeeder.setDirection(CRServo.Direction.REVERSE);
-                        leftFeederState = LeftFeederState.ON;
-                        leftFeeder.setPower(STOP_SPEED);
-                    }
+                    leftFeeder.setDirection(CRServo.Direction.REVERSE);
+                    leftFeeder.setPower(0);
             }
         }
 
@@ -265,15 +249,10 @@ public class TeleTeleOppy extends OpMode {
             switch (rightFeederState) {
                 case ON:
                     rightFeeder.setDirection(CRServo.Direction.REVERSE);
-                    rightFeederState = RightFeederState.OFF;
                     rightFeeder.setPower(FULL_SPEED);
-                    rightFeederTimer.reset();
                 case OFF:
-                    if (rightFeederTimer.seconds() > FEED_TIME_SECONDS) {
-                        rightFeeder.setDirection(CRServo.Direction.FORWARD);
-                        rightFeederState = RightFeederState.ON;
-                        rightFeeder.setPower(STOP_SPEED);
-                    }
+                    rightFeeder.setDirection(CRServo.Direction.FORWARD);
+                    rightFeeder.setPower(0);
             }
         }
 
@@ -292,6 +271,7 @@ public class TeleTeleOppy extends OpMode {
             }
         }
 
+
         if (gamepad1.bWasPressed()){
             switch (intakeState){
                 case ON:
@@ -307,9 +287,34 @@ public class TeleTeleOppy extends OpMode {
             }
         }
 
-        if (gamepad2.x) {
-            leftFeeder.setPower(0.01);
-            rightFeeder.setPower(0.01);
+        if (gamepad1.xWasPressed()){
+            switch (transferState){
+                case ON:
+                    transfer.setDirection(DcMotorSimple.Direction.REVERSE);
+                    transferState = TransferState.OFF;
+                    transfer.setPower(0);
+                    break;
+                case OFF:
+                    transfer.setDirection(DcMotorSimple.Direction.FORWARD);
+                    transferState = TransferState.ON;
+                    transfer.setPower(1);
+                    break;
+            }
+        }
+
+        if (gamepad1.yWasPressed()){
+            switch (transferState){
+                case ON:
+                    transfer.setDirection(DcMotorSimple.Direction.FORWARD);
+                    transferState = TransferState.OFF;
+                    transfer.setPower(0);
+                    break;
+                case OFF:
+                    transfer.setDirection(DcMotorSimple.Direction.REVERSE);
+                    transferState = TransferState.ON;
+                    transfer.setPower(1);
+                    break;
+            }
         }
 
         if (gamepad2.dpadUpWasPressed()) {
@@ -332,6 +337,13 @@ public class TeleTeleOppy extends OpMode {
             leftBackDrive.setPower(leftBackPower);
             rightFrontDrive.setPower(rightFrontPower);
             rightBackDrive.setPower(rightBackPower);
+        }
+
+        if (gamepad1.right_trigger>0) {
+            leftFrontDrive.setPower (leftFrontPower/2);
+            leftBackDrive.setPower(leftBackPower/2);
+            rightFrontDrive.setPower(rightFrontPower/2);
+            rightBackDrive.setPower(rightBackPower/2);
         }
 
         /*
@@ -437,5 +449,45 @@ public class TeleTeleOppy extends OpMode {
                 }
                 break;
         }
+    }
+
+    public void lightings(int desiredId){
+        camera.updateDesiredDetection(desiredId);
+
+        double currentYaw = camera.getYaw();
+        double currentPitch = camera.getPitch();
+        double currentRoll = camera.getPitch();
+        double currentX = camera.getX();
+        double currentY = camera.getY();
+        double currentZ = camera.getZ();
+        telemetry.addData("current Yaw: ", currentYaw);
+        telemetry.addData("current Pitch: ", currentPitch);
+        telemetry.addData("current Roll: ", currentRoll);
+        telemetry.addData("current X: ", currentX);
+        telemetry.addData("current Y: ", currentY);
+        telemetry.addData("current Z: ", currentZ);
+        telemetry.update();
+
+        double angleInDegrees = getAngle(currentX, currentZ);
+        if(camera.getDetected()){
+            if(Math.abs(angleInDegrees) < 3){
+                rightLight.setGreen();
+                leftLight.setGreen();
+            }else{
+                if(angleInDegrees>3){
+                    rightLight.setPurple();
+                    leftLight.setRed();
+                }else if(angleInDegrees<-3){
+                    rightLight.setRed();
+                    leftLight.setPurple();
+                }
+            }
+        }else{
+            rightLight.setRed();
+            leftLight.setRed();
+        }
+    }
+    public double getAngle(double x, double z){
+        return Math.toDegrees(Math.atan2(x, z));
     }
 }

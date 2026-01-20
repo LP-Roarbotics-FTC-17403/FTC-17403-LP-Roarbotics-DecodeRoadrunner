@@ -15,6 +15,10 @@ public class LED {
     public void setPurple(){
         light.setPosition(0.722);
     }
+
+    public void setRed(){
+        light.setPosition(0.28);
+    }
     public void lightOff(){
         light.setPosition(0);
     }

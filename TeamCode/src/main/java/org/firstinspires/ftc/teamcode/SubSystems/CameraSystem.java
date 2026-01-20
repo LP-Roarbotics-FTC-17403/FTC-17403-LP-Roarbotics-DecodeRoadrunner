@@ -25,7 +25,9 @@ public class CameraSystem {
     private double cx = 310.036;
     private double cy = 291.828;
 
-    private double tagsize = 4 * 0.0254; //meters
+    private double tagsize = 6.5 * 0.0254; //meters
+
+    private int counterFlicker = 0;
     private int numFramesWithoutDetection = 0;
     private final float DECIMATION_HIGH = 3;
     private final float DECIMATION_LOW = 2;
@@ -40,6 +42,8 @@ public class CameraSystem {
     private double pitch =0;
     private double roll = 0;
 
+    private boolean detected = false;
+
 
 
     public CameraSystem(HardwareMap hardwareMap) {
@@ -48,6 +52,13 @@ public class CameraSystem {
         aprilTagDetectionPipeline = new AprilTagDetectionPipeline(tagsize, fx, fy, cx, cy);
         camera.setPipeline(aprilTagDetectionPipeline);
 
+    }
+
+    public CameraSystem(HardwareMap hardwareMap, double tagSize){
+        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("CameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        camera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
+        aprilTagDetectionPipeline = new AprilTagDetectionPipeline(tagsize, fx, fy, cx, cy);
+        camera.setPipeline(aprilTagDetectionPipeline);
     }
 
     public void cameraOn(){
@@ -66,8 +77,6 @@ public class CameraSystem {
     public void updateDesiredDetection(int id){
         ArrayList<AprilTagDetection> detections = aprilTagDetectionPipeline.getDetectionsUpdate();
         if (detections != null) {
-
-
             // If we don't see any tags
             if (detections.size() == 0) {
                 numFramesWithoutDetection++;
@@ -89,15 +98,24 @@ public class CameraSystem {
                 }
 
                 for (AprilTagDetection detection : detections) {
-                    Orientation rot = Orientation.getOrientation(detection.pose.R, AxesReference.INTRINSIC, AxesOrder.YXZ, AngleUnit.DEGREES);
-                    x = detection.pose.x * INCH_PER_METER;
-                    y = detection.pose.y * INCH_PER_METER;
-                    z = detection.pose.z * INCH_PER_METER;
-                    pitch = rot.secondAngle;
-                    yaw = rot.firstAngle;
-                    roll = rot.thirdAngle;
-
+                    if(detection.id == id) {
+                        counterFlicker = 0;
+                        detected = true;
+                        Orientation rot = Orientation.getOrientation(detection.pose.R, AxesReference.INTRINSIC, AxesOrder.YXZ, AngleUnit.DEGREES);
+                        x = detection.pose.x * INCH_PER_METER;
+                        y = detection.pose.y * INCH_PER_METER;
+                        z = detection.pose.z * INCH_PER_METER;
+                        pitch = rot.secondAngle;
+                        yaw = rot.firstAngle;
+                        roll = rot.thirdAngle;
+                    }
                 }
+            }
+        }else{
+            counterFlicker++;
+            if(counterFlicker>2000){
+                detected=false;
+                counterFlicker = 0;
             }
         }
     }
@@ -158,6 +176,9 @@ public class CameraSystem {
 
     public double getRoll(){
         return roll;
+    }
+    public boolean getDetected() {
+        return detected;
     }
 
 }
