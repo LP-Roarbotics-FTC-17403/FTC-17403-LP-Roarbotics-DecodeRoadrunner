@@ -36,8 +36,8 @@ public class RedTeleTeleOppy extends OpMode {
     double launcherTarget = LAUNCHER_CLOSE_TARGET_VELOCITY; //These variables allow
     double launcherMin = LAUNCHER_CLOSE_MIN_VELOCITY;
 
-    final double OPEN = 0.3162; //the left and right position for the diverter servo
-    final double CLOSED = 0.035;
+    final double LEFT_POSITION = 0.3162; //the left and right position for the diverter servo
+    final double RIGHT_POSITION = 0.035;
 
     // Declare OpMode members.
     private DcMotor leftFrontDrive = null;
@@ -70,10 +70,10 @@ public class RedTeleTeleOppy extends OpMode {
     private LaunchState rightLaunchState;
 
     private enum DiverterDirection {
-        OPEN,
-        CLOSED;
+        LEFT,
+        RIGHT;
     }
-    private DiverterDirection diverterDirection = DiverterDirection.CLOSED;
+    private DiverterDirection diverterDirection = DiverterDirection.LEFT;
 
     private enum IntakeState {
         ON,
@@ -131,8 +131,7 @@ public class RedTeleTeleOppy extends OpMode {
         transfer = hardwareMap.get(DcMotor.class, "transfer");
         leftFeeder = hardwareMap.get(CRServo.class, "left_feeder");
         rightFeeder = hardwareMap.get(CRServo.class, "right_feeder");
-        rightDiverter = hardwareMap.get(Servo.class, "right_diverter");
-        leftDiverter = hardwareMap.get(Servo.class, "left_diverter");
+        diverter = hardwareMap.get(Servo.class, "diverter");
         leftLight = new LED(hardwareMap, "left_light");
         rightLight = new LED(hardwareMap, "right_light");
         camera = new CameraSystem(hardwareMap);
@@ -224,15 +223,13 @@ public class RedTeleTeleOppy extends OpMode {
 
         if (gamepad2.dpadDownWasPressed()) {
             switch (diverterDirection){
-                case OPEN:
-                    diverterDirection = DiverterDirection.OPEN;
-                    leftDiverter.setPosition(OPEN);
-                    rightDiverter.setPosition(OPEN);
+                case LEFT:
+                    diverterDirection = DiverterDirection.RIGHT;
+                    diverter.setPosition(RIGHT_POSITION);
                     break;
-                case CLOSED:
-                    diverterDirection = DiverterDirection.CLOSED;
-                    leftDiverter.setPosition(CLOSED);
-                    rightDiverter.setPosition(CLOSED);
+                case RIGHT:
+                    diverterDirection = DiverterDirection.LEFT;
+                    diverter.setPosition(LEFT_POSITION);
                     break;
             }
         }
