@@ -13,7 +13,7 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
 public class Firecracker {
     private DcMotorEx firecracker = null;
-    double LAUNCHER_CLOSE_TARGET_VELOCITY = 1100; //in ticks/second for the close goal. //1200 original
+    double LAUNCHER_CLOSE_TARGET_VELOCITY = 1130; //in ticks/second for the close goal. //1200 original
     final double LAUNCHER_CLOSE_MIN_VELOCITY = 1175; //minimum required to start a shot for close goal.
 
     final double LAUNCHER_FAR_TARGET_VELOCITY = 1350; //Target velocity for far goal

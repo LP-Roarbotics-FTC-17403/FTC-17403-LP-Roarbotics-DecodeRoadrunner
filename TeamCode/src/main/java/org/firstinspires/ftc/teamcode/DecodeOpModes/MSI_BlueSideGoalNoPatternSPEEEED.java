@@ -8,8 +8,6 @@ import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
-import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
-import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -26,8 +24,8 @@ import org.firstinspires.ftc.teamcode.SubSystems.Inhaler;
 import org.firstinspires.ftc.teamcode.SubSystems.LED;
 import org.firstinspires.ftc.teamcode.SubSystems.MotorClass;
 
-@Autonomous(name = "don't touch me5")
-public final class RoadRunnerBlueSingularity extends LinearOpMode {
+@Autonomous(group = "MSI")
+public final class MSI_BlueSideGoalNoPatternSPEEEED extends LinearOpMode {
 
     private Pose2d beginPose;
     private Pose2d launchPose;
@@ -81,11 +79,6 @@ public final class RoadRunnerBlueSingularity extends LinearOpMode {
         inhaler2                = new Inhaler(hardwareMap, "transfer");
         leftFeeder               = new Feeder(hardwareMap, "left_feeder");
         rightFeeder              = new Feeder(hardwareMap, "right_feeder");
-        leftLight                   = new LED(hardwareMap, "left_light");
-        middleLight                 = new LED(hardwareMap, "middle_light");
-        rightLight                  = new LED(hardwareMap, "right_light");
-        leftColor       = new ColorSensorCode(hardwareMap, "left_color_sensor");
-        rightColor      = new ColorSensorCode(hardwareMap, "right_color_sensor");
         vroom            = new MotorClass(hardwareMap);
         hammer          = new Hammer(hardwareMap, "diverter");
 
@@ -110,47 +103,74 @@ public final class RoadRunnerBlueSingularity extends LinearOpMode {
                         new ParallelAction(
                             leftFirecracker.closeLaunch(),
                             rightFirecracker.closeLaunch(),
-                            inhaler1.intakeOn(),
-                            inhaler2.intakeOn()
+                            inhaler1.intakeOn()
                         )
                 )
-                .strafeToLinearHeading(new Vector2d(-16,-15), Math.toRadians(165))
-                .stopAndAdd(readAprilTag())
-                .turnTo(Math.toRadians(227))
+                .strafeToLinearHeading(new Vector2d(-16,-15), Math.toRadians(227))
                 .stopAndAdd(
                         new SequentialAction(
-                            firstCycleLaunch(),
-                            hammer.right()
+                                inhaler2.intakeOn(),
+                            leftLeftRight(),
+                            hammer.right(),
+                                inhaler2.rest()
                         )
                 )
-                .splineToSplineHeading(new Pose2d(-6,-22, Math.toRadians(270)), Math.toRadians(270))
-                .afterDisp(4.5, ()->
-                        Actions.runBlocking(
-                                new ParallelAction(
-                                        hammer.left()
-                                )
-                        ))
-                .lineToYLinearHeading(-43, Math.toRadians(270), new TranslationalVelConstraint(10.0))
+                .turnTo(Math.toRadians(280))
+                .strafeToLinearHeading(new Vector2d(-10,-42), Math.toRadians(280))
+                //.splineToSplineHeading(new Pose2d(-6,-23, Math.toRadians(270)), Math.toRadians(270))
+                /*
+                .lineToYLinearHeading(-30, Math.toRadians(270))
+                .stopAndAdd(
+                        new ParallelAction(
+                                hammer.left()
+                        )
+                )
+                .waitSeconds(0.2)
+
+                 */
                 .splineToSplineHeading(launchPose, Math.toRadians(90))
                 .stopAndAdd(
                         new SequentialAction(
-                                secondCycleLaunch(),
-                                hammer.right()
+                                inhaler2.intakeOn(),
+                                leftLeftRight(),
+                                hammer.right(),
+                                inhaler2.rest()
                         )
                 )
-                .splineToSplineHeading(new Pose2d(22,-17.4, Math.toRadians(270)), Math.toRadians(270))
-                .afterDisp(0, ()->
-                        Actions.runBlocking(
-                                new ParallelAction(
-                                        hammer.left()
-                                )
-                        ))
-                .lineToYLinearHeading(-38, Math.toRadians(270), new TranslationalVelConstraint(10.0))
-                .lineToYLinearHeading(-30, Math.toRadians(270))
+                .strafeToLinearHeading(new Vector2d(10,-19.5), Math.toRadians(280))
+                /*.lineToYLinearHeading(-22, Math.toRadians(270))
+                .stopAndAdd(
+                        new ParallelAction(
+                                hammer.left()
+                        )
+                )
+                .waitSeconds(0.2)
+
+
+                 */
+                .strafeToLinearHeading(new Vector2d(15,-48), Math.toRadians(280))
+                //.lineToYLinearHeading(-30, Math.toRadians(270))
+                .strafeToLinearHeading(new Vector2d(14,-19.5), Math.toRadians(280))
                 .splineToSplineHeading(launchPose, Math.toRadians(200))
-                .stopAndAdd(thirdCycleLaunch())
+                .stopAndAdd(
+                        new SequentialAction(
+                                inhaler2.intakeOn(),
+                                leftRightLeft(),
+                                inhaler2.rest()
+                        ))
+                .strafeToLinearHeading(new Vector2d(41, -19.5), Math.toRadians(280))
+                .strafeToLinearHeading(new Vector2d(46,-40), Math.toRadians(280))
+                .strafeToLinearHeading(new Vector2d(-16,-15), Math.toRadians(227))
+                //.splineToSplineHeading(launchPose, Math.toRadians(200))
+                .stopAndAdd(
+                        new SequentialAction(
+                                inhaler2.intakeOn(),
+                                leftRightLeft())
+                        )
+
                 .strafeToLinearHeading(new Vector2d(0,-20), Math.toRadians(134))
                 .build();
+
 
 
         waitForStart();
@@ -194,39 +214,27 @@ public final class RoadRunnerBlueSingularity extends LinearOpMode {
     public Action leftLeftRight(){
         return new SequentialAction(
                 leftFeeder.feed(),
-                new SleepAction(0.8),
-                leftFeeder.rest(),
-                leftFeeder.feed(),
-                new SleepAction(0.8),
-                leftFeeder.rest(),
                 rightFeeder.feed(),
-                new SleepAction(0.8),
-                rightFeeder.rest()
+                new SleepAction(2),
+                rightFeeder.rest(),
+                leftFeeder.rest()
         );
     }
     public Action leftRightLeft(){
         return new SequentialAction(
                 leftFeeder.feed(),
-                new SleepAction(0.8),
-                leftFeeder.rest(),
                 rightFeeder.feed(),
-                new SleepAction(0.8),
+                new SleepAction(2),
                 rightFeeder.rest(),
-                leftFeeder.feed(),
-                new SleepAction(0.8),
                 leftFeeder.rest()
         );
     }
     public Action rightLeftLeft(){
         return new SequentialAction(
+                leftFeeder.feed(),
                 rightFeeder.feed(),
-                new SleepAction(0.8),
+                new SleepAction(2),
                 rightFeeder.rest(),
-                leftFeeder.feed(),
-                new SleepAction(0.8),
-                leftFeeder.rest(),
-                leftFeeder.feed(),
-                new SleepAction(0.8),
                 leftFeeder.rest()
         );
     }

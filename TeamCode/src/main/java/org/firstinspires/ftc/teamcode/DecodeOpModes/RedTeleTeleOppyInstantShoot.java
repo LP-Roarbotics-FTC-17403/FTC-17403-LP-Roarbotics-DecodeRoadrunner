@@ -22,7 +22,7 @@ import org.firstinspires.ftc.teamcode.SubSystems.LED;
 
 @TeleOp(group = "TeleOp")
 //@Disabled
-public class RedTeleTeleOppy extends OpMode {
+public class RedTeleTeleOppyInstantShoot extends OpMode {
     final double FEED_TIME_SECONDS = 2.80; //The feeder servos run this long when a shot is requested.
     final double STOP_SPEED = 0.0; //We send this power to the servos when we want them to stop.
     final double FULL_SPEED = 1.0;
@@ -36,11 +36,8 @@ public class RedTeleTeleOppy extends OpMode {
     double launcherTarget = LAUNCHER_CLOSE_TARGET_VELOCITY; //These variables allow
     double launcherMin = LAUNCHER_CLOSE_MIN_VELOCITY;
 
-    final double RIGHT_OPEN_POSITION = 0.3162; //the left and right position for the diverter servo
-    final double RIGHT_CLOSE_POSITION = 0.035;
-
-    final double LEFT_OPEN_POSITION = 0.3162;
-    final double LEFT_CLOSE_POSITION = 0.035;
+    final double LEFT_POSITION = 0.3162; //the left and right position for the diverter servo
+    final double RIGHT_POSITION = 0.035;
 
     // Declare OpMode members.
     private DcMotor leftFrontDrive = null;
@@ -53,8 +50,7 @@ public class RedTeleTeleOppy extends OpMode {
     private DcMotor transfer = null;
     private CRServo leftFeeder = null;
     private CRServo rightFeeder = null;
-    private Servo rightDiverter = null;
-    private Servo leftDiverter = null;
+    private Servo diverter = null;
 
     private LED leftLight;
     private LED rightLight;
@@ -74,10 +70,10 @@ public class RedTeleTeleOppy extends OpMode {
     private LaunchState rightLaunchState;
 
     private enum DiverterDirection {
-        OPEN,
-        CLOSE;
+        LEFT,
+        RIGHT;
     }
-    private DiverterDirection diverterDirection = DiverterDirection.CLOSE;
+    private DiverterDirection diverterDirection = DiverterDirection.LEFT;
 
     private enum IntakeState {
         ON,
@@ -135,8 +131,7 @@ public class RedTeleTeleOppy extends OpMode {
         transfer = hardwareMap.get(DcMotor.class, "transfer");
         leftFeeder = hardwareMap.get(CRServo.class, "left_feeder");
         rightFeeder = hardwareMap.get(CRServo.class, "right_feeder");
-        rightDiverter = hardwareMap.get(Servo.class, "right_diverter");
-        leftDiverter = hardwareMap.get(Servo.class, "left_diverter");
+        diverter = hardwareMap.get(Servo.class, "diverter");
         leftLight = new LED(hardwareMap, "left_light");
         rightLight = new LED(hardwareMap, "right_light");
         camera = new CameraSystem(hardwareMap);
@@ -228,15 +223,13 @@ public class RedTeleTeleOppy extends OpMode {
 
         if (gamepad2.dpadDownWasPressed()) {
             switch (diverterDirection){
-                case OPEN:
-                    diverterDirection = DiverterDirection.CLOSE;
-                    rightDiverter.setPosition(RIGHT_CLOSE_POSITION);
-                    leftDiverter.setPosition(LEFT_CLOSE_POSITION);
+                case LEFT:
+                    diverterDirection = DiverterDirection.RIGHT;
+                    diverter.setPosition(RIGHT_POSITION);
                     break;
-                case CLOSE:
-                    diverterDirection = DiverterDirection.OPEN;
-                    rightDiverter.setPosition(RIGHT_OPEN_POSITION);
-                    leftDiverter.setPosition(LEFT_OPEN_POSITION);
+                case RIGHT:
+                    diverterDirection = DiverterDirection.LEFT;
+                    diverter.setPosition(LEFT_POSITION);
                     break;
             }
         }

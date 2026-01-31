@@ -80,11 +80,6 @@ public final class MSI_BlueSideGoalNoPattern extends LinearOpMode {
         inhaler2                = new Inhaler(hardwareMap, "transfer");
         leftFeeder               = new Feeder(hardwareMap, "left_feeder");
         rightFeeder              = new Feeder(hardwareMap, "right_feeder");
-        leftLight                   = new LED(hardwareMap, "left_light");
-        middleLight                 = new LED(hardwareMap, "middle_light");
-        rightLight                  = new LED(hardwareMap, "right_light");
-        leftColor       = new ColorSensorCode(hardwareMap, "left_color_sensor");
-        rightColor      = new ColorSensorCode(hardwareMap, "right_color_sensor");
         vroom            = new MotorClass(hardwareMap);
         hammer          = new Hammer(hardwareMap, "diverter");
 
@@ -121,13 +116,14 @@ public final class MSI_BlueSideGoalNoPattern extends LinearOpMode {
                         )
                 )
                 .splineToSplineHeading(new Pose2d(-6,-23, Math.toRadians(270)), Math.toRadians(270))
-                .afterDisp(5.8, ()->
-                        Actions.runBlocking(
-                                new ParallelAction(
-                                        hammer.left()
-                                )
-                        ))
-                .lineToYLinearHeading(-43, Math.toRadians(270), new TranslationalVelConstraint(10.0))
+                .lineToYLinearHeading(-30, Math.toRadians(270))
+                .stopAndAdd(
+                        new ParallelAction(
+                                hammer.left()
+                        )
+                )
+                .waitSeconds(0.2)
+                .lineToYLinearHeading(-42, Math.toRadians(270))
                 .splineToSplineHeading(launchPose, Math.toRadians(90))
                 .stopAndAdd(
                         new SequentialAction(
@@ -135,14 +131,15 @@ public final class MSI_BlueSideGoalNoPattern extends LinearOpMode {
                                 hammer.right()
                         )
                 )
-                .splineToSplineHeading(new Pose2d(21,-19.5, Math.toRadians(270)), Math.toRadians(270))
-                .afterDisp(1.3, ()->
-                        Actions.runBlocking(
-                                new ParallelAction(
-                                        hammer.left()
-                                )
-                        ))
-                .lineToYLinearHeading(-43, Math.toRadians(270), new TranslationalVelConstraint(10.0))
+                .splineToSplineHeading(new Pose2d(21,-19.5, Math.toRadians(275)), Math.toRadians(270))
+                .lineToYLinearHeading(-22, Math.toRadians(270))
+                .stopAndAdd(
+                        new ParallelAction(
+                                hammer.left()
+                        )
+                )
+                .waitSeconds(0.2)
+                .lineToYLinearHeading(-43, Math.toRadians(270))
                 .lineToYLinearHeading(-30, Math.toRadians(270))
                 .splineToSplineHeading(launchPose, Math.toRadians(200))
                 .stopAndAdd(leftRightLeft())

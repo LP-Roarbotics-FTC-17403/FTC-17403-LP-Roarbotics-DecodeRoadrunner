@@ -11,6 +11,10 @@ public class Hammer {
     final double LEFT_POSITION = 0.3162; //the left and right position for the diverter servo
     final double RIGHT_POSITION = 0.035;
 
+    private double closePosition = 0;
+
+    private double openPosition = 0;
+
     public Hammer(HardwareMap hardwareMap, String deviceName){
         this.hammer = hardwareMap.get(Servo.class, deviceName);
     }
@@ -27,6 +31,36 @@ public class Hammer {
     public void setLeft(){
         hammer.setPosition(LEFT_POSITION);
     }
+
+    public void setPosition(double closePosition, double openPosition){
+        this.closePosition = closePosition;
+        this.openPosition = openPosition;
+    }
+
+    public Action openGate(){
+        return new Action() {
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+
+                hammer.setPosition(openPosition);
+
+                return false;
+            }
+        };
+    }
+    public Action closeGate(){
+        return new Action() {
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+
+                hammer.setPosition(closePosition);
+
+                return false;
+            }
+        };
+    }
+
+
 
     public Action left(){
         return new Action() {
