@@ -73,7 +73,7 @@ public class AprilTagPoseDetection extends LinearOpMode {
         waitForStart();
 
         while(opModeIsActive()){
-            camera.updateDesiredDetection(23);
+            camera.updateDesiredDetection(24);
 
             double currentYaw = camera.getYaw();
             double currentPitch = camera.getPitch();

@@ -22,7 +22,7 @@ import org.firstinspires.ftc.teamcode.SubSystems.LED;
 
 @TeleOp(group = "TeleOp")
 //@Disabled
-public class BlueTeleTeleOppy extends OpMode {
+public class City_RedSideTele extends OpMode {
     final double FEED_TIME_SECONDS = 2.80; //The feeder servos run this long when a shot is requested.
     final double STOP_SPEED = 0.0; //We send this power to the servos when we want them to stop.
     final double FULL_SPEED = 1.0;
@@ -32,6 +32,9 @@ public class BlueTeleTeleOppy extends OpMode {
 
     final double LAUNCHER_FAR_TARGET_VELOCITY = 1400; //Target velocity for far goal
     final double LAUNCHER_FAR_MIN_VELOCITY = 1375; //minimum required to start a shot for far goal.
+
+    final double TOOFAR                     =1475;
+    final double TOOFARMIN                  =1450;
 
     double launcherTarget = LAUNCHER_CLOSE_TARGET_VELOCITY; //These variables allow
     double launcherMin = LAUNCHER_CLOSE_MIN_VELOCITY;
@@ -59,6 +62,12 @@ public class BlueTeleTeleOppy extends OpMode {
     private LED leftLight;
     private LED rightLight;
     private CameraSystem camera;
+    double currentYaw;
+    double currentPitch;
+    double currentRoll;
+    double currentX;
+    double currentY;
+    double currentZ;
 
     ElapsedTime leftFeederTimer = new ElapsedTime();
     ElapsedTime rightFeederTimer = new ElapsedTime();
@@ -135,8 +144,8 @@ public class BlueTeleTeleOppy extends OpMode {
         transfer = hardwareMap.get(DcMotor.class, "transfer");
         leftFeeder = hardwareMap.get(CRServo.class, "left_feeder");
         rightFeeder = hardwareMap.get(CRServo.class, "right_feeder");
-        rightDiverter = hardwareMap.get(Servo.class, "right_diverter");
-        leftDiverter = hardwareMap.get(Servo.class, "left_diverter");
+        //rightDiverter = hardwareMap.get(Servo.class, "right_diverter");
+        //leftDiverter = hardwareMap.get(Servo.class, "left_diverter");
         leftLight = new LED(hardwareMap, "left_light");
         rightLight = new LED(hardwareMap, "right_light");
         camera = new CameraSystem(hardwareMap);
@@ -211,7 +220,19 @@ public class BlueTeleTeleOppy extends OpMode {
      */
     @Override
     public void loop() {
-        lightings(20);
+        lightings(24);
+        currentYaw = camera.getYaw();
+        currentPitch = camera.getPitch();
+        currentRoll = camera.getPitch();
+        currentX = camera.getX();
+        currentY = camera.getY();
+        currentZ = camera.getZ();
+        telemetry.addData("current Yaw: ", currentYaw);
+        telemetry.addData("current Pitch: ", currentPitch);
+        telemetry.addData("current Roll: ", currentRoll);
+        telemetry.addData("current X: ", currentX);
+        telemetry.addData("current Y: ", currentY);
+        telemetry.addData("current Z: ", currentZ);
         mecanumDrive(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
 
         /*
@@ -225,7 +246,7 @@ public class BlueTeleTeleOppy extends OpMode {
             leftLauncher.setVelocity(STOP_SPEED);
             rightLauncher.setVelocity(STOP_SPEED);
         }
-
+/*
         if (gamepad2.dpadDownWasPressed()) {
             switch (diverterDirection){
                 case OPEN:
@@ -240,6 +261,8 @@ public class BlueTeleTeleOppy extends OpMode {
                     break;
             }
         }
+
+ */
 
         if (gamepad2.dpadLeftWasPressed()) {
             switch (leftFeederState) {
@@ -338,7 +361,18 @@ public class BlueTeleTeleOppy extends OpMode {
                     break;
             }
         }
-
+        if(camera.getDetected()){
+            if(currentZ > 134){
+                launcherTarget = TOOFAR;
+                launcherMin = TOOFARMIN;
+            }else if(currentZ > 113){
+                launcherTarget = LAUNCHER_FAR_TARGET_VELOCITY;
+                launcherMin = LAUNCHER_FAR_MIN_VELOCITY;
+            }else{
+                launcherTarget = LAUNCHER_CLOSE_TARGET_VELOCITY;
+                launcherMin = LAUNCHER_CLOSE_MIN_VELOCITY;
+            }
+        }
         if(gamepad1.left_stick_button) {
             leftFrontDrive.setPower(leftFrontPower);
             leftBackDrive.setPower(leftBackPower);
@@ -429,7 +463,6 @@ public class BlueTeleTeleOppy extends OpMode {
                 break;
         }
     }
-
     void launchRight(boolean shotRequested) {
         switch (rightLaunchState) {
             case IDLE:
@@ -477,14 +510,14 @@ public class BlueTeleTeleOppy extends OpMode {
 
         double angleInDegrees = getAngle(currentX, currentZ);
         if(camera.getDetected()){
-            if(Math.abs(angleInDegrees) < 3){
+            if(Math.abs(angleInDegrees) < 2.5){
                 rightLight.setGreen();
                 leftLight.setGreen();
             }else{
-                if(angleInDegrees>3){
+                if(angleInDegrees>2.5){
                     rightLight.setPurple();
                     leftLight.setRed();
-                }else if(angleInDegrees<-3){
+                }else if(angleInDegrees<-2.5){
                     rightLight.setRed();
                     leftLight.setPurple();
                 }
