@@ -27,6 +27,7 @@ public class City_RedSideTeleTest extends OpMode {
     final double STOP_SPEED = 0.0; //We send this power to the servos when we want them to stop.
     final double FULL_SPEED = 1.0;
 
+    final double LAUNCHER_REVERSE = 400;
     final double LAUNCHER_CLOSE_TARGET_VELOCITY = 1200; //in ticks/second for the close goal.
     final double LAUNCHER_CLOSE_MIN_VELOCITY = 1175; //minimum required to start a shot for close goal.
 
@@ -275,8 +276,8 @@ public class City_RedSideTeleTest extends OpMode {
                 case ON:
                     leftLauncher.setDirection(DcMotorSimple.Direction.REVERSE);
                     rightLauncher.setDirection(DcMotorSimple.Direction.FORWARD);
-                    leftLauncher.setVelocity(launcherTarget);
-                    rightLauncher.setVelocity(launcherTarget);
+                    leftLauncher.setVelocity(LAUNCHER_REVERSE);
+                    rightLauncher.setVelocity(LAUNCHER_REVERSE);
                 case OFF:
                     leftLauncher.setDirection(DcMotorSimple.Direction.FORWARD);
                     rightLauncher.setDirection(DcMotorSimple.Direction.REVERSE);
